@@ -1,9 +1,13 @@
 use eframe::egui;
+use std::f64::consts::PI;
 // use egui_plot::{Legend, Line, Plot, PlotPoints};
 mod derivatives;
 use crate::derivatives::*;
 mod integrals;
 use crate::integrals::*;
+
+const LOWER: f64 = -2.0 * PI;
+const UPPER: f64 = 2.0 * PI;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Mode {

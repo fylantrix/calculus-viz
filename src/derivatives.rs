@@ -1,5 +1,6 @@
 use eframe::egui;
 use egui_plot::{Legend, Line, Plot, PlotPoints};
+use crate::{LOWER, UPPER};
 
 pub struct DerivativeChart {
     dx: f64,
@@ -25,7 +26,7 @@ impl DerivativeChart {
 
 
             for i in 0..300 {
-                let x = -10.0 + 20.0 * i as f64 / 299.0;
+                let x = LOWER + (UPPER - LOWER) * i as f64 / 299.0;
 
                 let y1 = x.sin();
                 let dy = (x + self.dx).sin();
@@ -45,8 +46,8 @@ impl DerivativeChart {
 
             Plot::new("line_plot")
                 .legend(Legend::default())
-                .default_x_bounds(-10.0, 10.0)
-                .default_y_bounds(-10.0, 10.0)
+                .default_x_bounds(LOWER, UPPER)
+                .default_y_bounds(-5.0, 5.0)
                 .show(ui, |plot_ui| {
                     plot_ui.line(main_line);
                     plot_ui.line(derive);
