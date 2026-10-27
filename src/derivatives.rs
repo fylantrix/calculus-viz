@@ -1,5 +1,5 @@
 use eframe::egui;
-use egui_plot::{Legend, Line, Plot, PlotPoints};
+use egui_plot::{Legend, Line, Plot};
 use crate::{LOWER, UPPER, Function};
 
 pub struct DerivativeChart {

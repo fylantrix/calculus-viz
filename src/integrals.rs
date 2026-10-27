@@ -1,6 +1,6 @@
 use egui::{Color32, Stroke};
 use eframe::egui;
-use egui_plot::{Polygon, Legend, Line, Plot, PlotPoints};
+use egui_plot::{Polygon, Legend, Line, Plot};
 use crate::{LOWER, UPPER, Function};
 
 pub struct IntegralChart {
