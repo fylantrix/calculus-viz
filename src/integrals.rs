@@ -1,38 +1,39 @@
 use egui::{Color32, Stroke};
 use eframe::egui;
 use egui_plot::{Polygon, Legend, Line, Plot, PlotPoints};
-use crate::{LOWER, UPPER};
+use crate::{LOWER, UPPER, Function};
 
 pub struct IntegralChart {
     dx: f64,
+    show_boxes: bool,
     show_ans: bool
 }
 
 impl Default for IntegralChart {
     fn default() -> Self {
-        Self { dx: 1.0, show_ans: false }
+        Self { dx: 1.0, show_boxes: true, show_ans: false }
     }
 }
 
 impl IntegralChart {
-    pub fn show(&mut self, ui: &mut egui::Ui) {
+    pub fn show(&mut self, ui: &mut egui::Ui, function: Function) {
         egui::CentralPanel::default().show(ui, |ui| {
             ui.add(egui::Slider::new(&mut self.dx, 0.0..=1.0).text("dx"));
-            ui.checkbox(&mut self.show_ans, "Show answer function");
+            ui.checkbox(&mut self.show_ans, "Show exact integral");
+            ui.checkbox(&mut self.show_boxes, "Show rectangles");
 
-            let mut points1 = Vec::with_capacity(300);
+            let mut original = Vec::with_capacity(300);
             let mut integral_points = Vec::with_capacity(301);
-            let mut points_cos = Vec::with_capacity(300);
+            let mut exact_integral = Vec::with_capacity(300);
             let mut rects = Vec::new();
 
             for i in 0..300 {
                 let x = LOWER + (UPPER - LOWER) * i as f64 / 299.0;
+                let y = function.eval(x);
 
-                let y1 = x.sin();
-                let yc = -1.0 * x.cos();
+                original.push([x, y]);
 
-                points_cos.push([x, yc]);
-                points1.push([x, y1]);
+                exact_integral.push([x, function.integral(x)]);
             }
 
             if self.dx > 0.0 {
@@ -45,7 +46,7 @@ impl IntegralChart {
                 for i in 0..n_rect {
                     let x = LOWER + i as f64 * self.dx;
                     let width = self.dx.min(UPPER - x);
-                    let height = x.sin();
+                    let height = function.eval(x);
 
                     rects.push(Polygon::new(
                         "region",
@@ -65,9 +66,9 @@ impl IntegralChart {
                 }
             }
 
-            let main_line = Line::new("sin(x)", points1);
+            let main_line = Line::new("sin(x)", original);
             let derive = Line::new("integral", integral_points);
-            let proof = Line::new("cos(x)", points_cos);
+            let proof = Line::new("cos(x)", exact_integral);
 
             Plot::new("line_plot")
                 .legend(Legend::default())
@@ -79,8 +80,10 @@ impl IntegralChart {
                     if self.show_ans {
                         plot_ui.line(proof);
                     }
-                    for rect in rects {
-                        plot_ui.polygon(rect);
+                    if self.show_boxes {
+                        for rect in rects {
+                            plot_ui.polygon(rect);
+                        }
                     }
                 });
         });

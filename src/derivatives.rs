@@ -1,6 +1,6 @@
 use eframe::egui;
 use egui_plot::{Legend, Line, Plot, PlotPoints};
-use crate::{LOWER, UPPER};
+use crate::{LOWER, UPPER, Function};
 
 pub struct DerivativeChart {
     dx: f64,
@@ -14,35 +14,35 @@ impl Default for DerivativeChart {
 }
 
 impl DerivativeChart {
-    pub fn show(&mut self, ui: &mut egui::Ui) {
+    pub fn show(&mut self, ui: &mut egui::Ui, function: Function) {
         egui::CentralPanel::default().show(ui, |ui| {
             ui.add(egui::Slider::new(&mut self.dx, 0.0..=2.0).text("dx"));
-            ui.checkbox(&mut self.show_ans, "Show answer function");
+            ui.checkbox(&mut self.show_ans, "Show exact derivative");
 
-            let mut points1 = Vec::with_capacity(300);
-            let mut pointsd = Vec::with_capacity(300);
-            let mut points2 = Vec::with_capacity(300);
-            let mut points_cos = Vec::with_capacity(300);
+            let mut original = Vec::with_capacity(300);
+            // let mut pointsd = Vec::with_capacity(300);
+            let mut numeric_derivative = Vec::with_capacity(300);
+            let mut exact_derivative = Vec::with_capacity(300);
 
 
             for i in 0..300 {
                 let x = LOWER + (UPPER - LOWER) * i as f64 / 299.0;
+                let y = function.eval(x);
 
-                let y1 = x.sin();
-                let dy = (x + self.dx).sin();
-                let yc = x.cos();
-                let y2 = (dy - y1) / self.dx;
+                original.push([x, y]);
 
-                points1.push([x, y1]);
-                pointsd.push([x, dy]);
-                points2.push([x, y2]);
-                points_cos.push([x, yc]);
+                numeric_derivative.push([
+                    x,
+                    (function.eval(x + self.dx) - y) / self.dx
+                ]);
+
+                exact_derivative.push([x, function.derivative(x)]);
             }
 
-            let main_line = Line::new("sin(x)", points1);
-            let derive = Line::new("dy1/dx", points2);
-            let proof = Line::new("cos(x)", points_cos);
-            let del_y = Line::new("y = dy", pointsd);
+            let main_line = Line::new("sin(x)", original);
+            let derive = Line::new("dy/dx", numeric_derivative);
+            let proof = Line::new("cos(x)", exact_derivative);
+            // let del_y = Line::new("y = dy", pointsd);
 
             Plot::new("line_plot")
                 .legend(Legend::default())
