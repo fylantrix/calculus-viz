@@ -1,9 +1,10 @@
 use eframe::egui;
-// use egui_plot::{Legend, Line, Plot, PlotPoints};
 mod derivatives;
 use crate::derivatives::*;
 mod integrals;
 use crate::integrals::*;
+mod taylor;
+use crate::taylor::*;
 use calculus::{LOWER, UPPER, Function};
 
 
